@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>جستجوی اشعار گنجور</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 50px; direction: rtl; }
+    input { width: 300px; padding: 8px; }
+    button { padding: 8px 12px; }
+    .result { margin: 20px auto; max-width: 600px; text-align: right; }
+    .poem-title { font-weight: bold; margin-top: 15px; }
+  </style>
+</head>
+<body>
+  <h1>جستجو در اشعار گنجور</h1>
+  <input type="text" id="searchInput" placeholder="عبارت مورد نظر را وارد کنید">
+  <button onclick="searchPoems()">جستجو</button>
+
+  <div id="results" class="result"></div>
+
+  <script>
+    async function searchPoems() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (!query) return;
+
+      const response = await fetch(`https://api.ganjoor.net/api/ganjoor/poems/search?query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
+
+      if (data.poems && data.poems.length > 0) {
+        data.poems.forEach(poem => {
+          const poemDiv = document.createElement("div");
+          poemDiv.innerHTML = `
+            <div class="poem-title">${poem.title}</div>
+            <div>${poem.verses.slice(0, 2).map(v => v.text).join("<br>")}...</div>
+            <a href="https://ganjoor.net${poem.url}" target="_blank">ادامه شعر</a>
+          `;
+          resultsDiv.appendChild(poemDiv);
+        });
+      } else {
+        resultsDiv.innerHTML = "هیچ شعری یافت نشد.";
+      }
+    }
+  </script>
+</body>
+</html>
